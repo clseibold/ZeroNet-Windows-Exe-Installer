@@ -35,7 +35,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 ;Name: "p2pmessagesplugin"; Description: "P2P Messages"; GroupDescription: "Install Additional Plugins"
 
 [Components]
-Name: "main"; Description: "Main Files"; Types: full compact custom; Flags: fixed
+Name: "main"; Description: "ZeroNet Core"; Types: full compact custom; Flags: fixed
 Name: "plugins"; Description: "Plugins"; Types: full custom
 Name: "plugins\p2pmessages"; Description: "P2P Messages Plugin (imachug) - Beta"; Types: full
 
@@ -63,6 +63,10 @@ Root: "HKCU"; Subkey: "SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFla
   ValueType: String; ValueName: "{app}\{#MyAppExeName}"; ValueData: "RUNASADMIN"; \
   Flags: uninsdeletekeyifempty uninsdeletevalue; MinVersion: 0,6.1
 
+[UninstallDelete]
+Type: filesandordirs; Name: "{app}\core"
+Type: filesandordirs; Name: "{app}\lib"
+	
 [Code]
 procedure SetElevationBit(Filename: string);
 var

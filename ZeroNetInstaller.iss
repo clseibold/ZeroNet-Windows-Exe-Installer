@@ -37,7 +37,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Components]
 Name: "main"; Description: "Main Files"; Types: full compact custom; Flags: fixed
 Name: "plugins"; Description: "Plugins"; Types: full custom
-Name: "plugins\p2pmessages"; Description: "P2P Messages Plugin (imachug)"; Types: full
+Name: "plugins\p2pmessages"; Description: "P2P Messages Plugin (imachug) - Beta"; Types: full
 
 [Files]
 Source: "ZeroNet-win-dist\ZeroNet.exe"; DestDir: "{app}"; Flags: ignoreversion; \

@@ -47,6 +47,7 @@ Source: "Plugins\P2P-messages\*"; DestDir: "{app}\core\plugins\P2P-messages"; Fl
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
+Name: "{group}\Data directory"; Filename: "{app}\data"; Flags: foldershortcut
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; \
   AfterInstall: SetElevationBit('{group}\{#MyAppName}.lnk')
 Name: "{group}\{cm:ProgramOnTheWeb,{#MyAppName}}"; Filename: "{#MyAppURL}"

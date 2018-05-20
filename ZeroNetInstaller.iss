@@ -32,11 +32,18 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+;Name: "p2pmessagesplugin"; Description: "P2P Messages"; GroupDescription: "Install Additional Plugins"
+
+[Components]
+Name: "main"; Description: "Main Files"; Types: full compact custom; Flags: fixed
+Name: "plugins"; Description: "Plugins"; Types: full custom
+Name: "plugins\p2pmessages"; Description: "P2P Messages Plugin (imachug)"; Types: full
 
 [Files]
 Source: "ZeroNet-win-dist\ZeroNet.exe"; DestDir: "{app}"; Flags: ignoreversion; \
   AfterInstall: SetElevationBit('{app}\{#MyAppExeName}')
 Source: "ZeroNet-win-dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "Plugins\P2P-messages\*"; DestDir: "{app}\core\plugins\P2P-messages"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: plugins\p2pmessages
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

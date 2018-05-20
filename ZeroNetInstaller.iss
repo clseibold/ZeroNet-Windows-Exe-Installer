@@ -34,9 +34,9 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\krixa\Desktop\ZeroNet-win-dist (3)\ZeroNet-win-dist\ZeroNet.exe"; DestDir: "{app}"; Flags: ignoreversion; \
+Source: "ZeroNet-win-dist\ZeroNet.exe"; DestDir: "{app}"; Flags: ignoreversion; \
   AfterInstall: SetElevationBit('{app}\{#MyAppExeName}')
-Source: "C:\Users\krixa\Desktop\ZeroNet-win-dist (3)\ZeroNet-win-dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "ZeroNet-win-dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

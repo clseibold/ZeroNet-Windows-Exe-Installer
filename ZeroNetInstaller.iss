@@ -11,8 +11,10 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-PrivilegesRequired=admin
 AppId={{7C632D38-8512-4141-9AAE-C61BB83AE099}
+PrivilegesRequired=admin
+; Tell Windows Explorer to reload the environment
+ChangesEnvironment=yes
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
@@ -30,6 +32,9 @@ SolidCompression=yes
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
+[Dirs]
+Name: "{app}\bin"
+
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 ;Name: "p2pmessagesplugin"; Description: "P2P Messages"; GroupDescription: "Install Additional Plugins"
@@ -43,6 +48,7 @@ Name: "plugins\p2pmessages"; Description: "P2P Messages Plugin (imachug) - Beta"
 Source: "ZeroNet-win-dist\ZeroNet.exe"; DestDir: "{app}"; Flags: ignoreversion; \
   AfterInstall: SetElevationBit('{app}\{#MyAppExeName}')
 Source: "ZeroNet-win-dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "bin\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "Plugins\P2P-messages\*"; DestDir: "{app}\core\plugins\P2P-messages"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: plugins\p2pmessages
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
@@ -59,9 +65,20 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: 
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Verb: runas; Flags: nowait postinstall skipifsilent shellexec
 
 [Registry]
-Root: "HKCU"; Subkey: "SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers\"; \
+Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers\"; \
   ValueType: String; ValueName: "{app}\{#MyAppExeName}"; ValueData: "RUNASADMIN"; \
   Flags: uninsdeletekeyifempty uninsdeletevalue; MinVersion: 0,6.1
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+	ValueType: String; ValueName: "ZERONET_ROOT"; ValueData: "{app}\core"; Flags: uninsdeletekeyifempty uninsdeletevalue;
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+	ValueType: String; ValueName: "ZERONET_BUNDLE_ROOT"; ValueData: "{app}"; Flags: uninsdeletekeyifempty uninsdeletevalue;
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+	ValueType: String; ValueName: "ZERONET_DATA_DIR"; ValueData: "{app}\data"; Flags: uninsdeletekeyifempty uninsdeletevalue;
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+	ValueType: String; ValueName: "ZERONET_DATA_DIR"; ValueData: "{app}\data"; Flags: uninsdeletekeyifempty uninsdeletevalue;
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+    ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}\bin"; \
+    Check: NeedsAddPath(ExpandConstant('{app}\bin'))
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\core"
@@ -86,5 +103,42 @@ begin
     Stream.WriteBuffer(Buffer, 1);
   finally
     Stream.Free;
+  end;
+end;
+
+// Used to add bin directory to global PATH only if not already in it
+function NeedsAddPath(Param: string): boolean;
+var
+  OrigPath: string;
+begin
+  if not RegQueryStringValue(HKEY_LOCAL_MACHINE,
+    'SYSTEM\CurrentControlSet\Control\Session Manager\Environment',
+    'Path', OrigPath)
+  then begin
+    Result := True;
+    exit;
+  end;
+  { look for the path with leading and trailing semicolon }
+  { Pos() returns 0 if not found }
+  Result :=
+    (Pos(';' + UpperCase(Param) + ';', ';' + UpperCase(OrigPath) + ';') = 0) and
+    (Pos(';' + UpperCase(Param) + '\;', ';' + UpperCase(OrigPath) + ';') = 0); 
+end;
+
+// Delete ZeroNet Data Directory Procedure
+procedure DeleteDataDirectory();
+begin
+	DelTree(ExpandConstant('{app}\data'), True, True, True);
+end;
+
+// Called after uninstallation
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep = usUninstall then begin
+    if MsgBox('Do you want to delete the ZeroNet data folder?', mbConfirmation,
+        MB_YESNO) = IDYES 
+    then begin
+      DeleteDataDirectory();
+    end;
   end;
 end;

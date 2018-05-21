@@ -111,10 +111,22 @@ Type: filesandordirs; Name: "{app}\lib"
 Type: filesandordirs; Name: "{app}\core"
 
 [UninstallDelete]
-;Type: filesandordirs; Name: "{app}\"
-;Type: filesandordirs; Name: "{app}\lib"
+Type: filesandordirs; Name: "{app}\ZeroNet\src"
 	
 [Code]
+var
+	DataDirMovePage: TInputDirWizardPage;
+
+// Initialize wizard, add 'Move Data of Previous ZeroNet Instance' Page
+procedure InitializeWizard;
+begin
+	DataDirMovePage := CreateInputDirPage(wpSelectDir,
+		'Move Data of Previous ZeroNet Instance', 'Select a Data Directory to move to new ZeroNet installation',
+		'Select the data folder of a previous ZeroNet instance that you want moved to the new ZeroNet installation, then click Next. If you do not want to move a data directory, then leave blank.',
+		False, '');
+	DataDirMovePage.Add('');
+end;
+
 procedure SetElevationBit(Filename: string);
 var
   Buffer: string;
@@ -166,7 +178,7 @@ begin
 		// Called after installation
 	if CurStep = ssPostInstall then
 	begin
-		if DirExists(ExpandConstant('{app}\data')) then begin
+		if DirExists(ExpandConstant('{app}\data')) and (DataDirMovePage.Values[0] = '') then begin
 			Log('Moving data directory to new location');
 			// Move data directory to new location
 			if DirExists(ExpandConstant('{app}\ZeroNet\data')) then
@@ -183,6 +195,12 @@ begin
 				DeleteFile(ExpandConstant('{app}\ZeroNet\zeronet.conf'));
 			end;
 			RenameFile(ExpandConstant('{app}\zeronet.conf'), ExpandConstant('{app}\ZeroNet\zeronet.conf'));
+		end;
+		// Move the select data directory to the new location
+		if (DataDirMovePage.Values[0] <> '') and DirExists(DataDirMovePage.Values[0]) then
+		begin
+			Log('Moving selected data directory.');
+			RenameFile(DataDirMovePage.Values[0], ExpandConstant('{app}\ZeroNet\data'));
 		end;
 	end;
 end;

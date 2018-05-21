@@ -45,6 +45,7 @@ Name: "custom"; Description: "Custom installation"; Flags: iscustom
 
 [Components]
 Name: "main"; Description: "Base install"; Types: full minimal fullserver minimalserver custom; Flags: fixed
+Name: "python27"; Description: "Pre-packaged Python 2.7 32-bit"; Types: full minimal fullserver minimalserver custom
 ; Official Plugins
 Name: "officialplugins"; Description: "Official Plugins"; Types: full fullserver custom
 Name: "officialplugins\trayicon"; Description: "Tray icon"; Types: full minimal fullserver
@@ -57,11 +58,13 @@ Name: "thirdpartyplugins\p2pmessages"; Description: "P2P Messages Plugin (imachu
 
 [Files]
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
-; Base Install
-Source: "ZeroBundle\ZeroNet.cmd"; DestDir: "{app}"; Flags: ignoreversion; \
+; Base Install - Pre-packaged python vs. Not Pre-packaged python
+Source: "ZeroBundle\ZeroNet.cmd"; DestDir: "{app}"; Flags: ignoreversion; Components: python27; \
   AfterInstall: SetElevationBit('{app}\{#MyAppExeName}')
-Source: "ZeroBundle\*"; DestDir: "{app}"; Excludes: "\Python-x64\*,\ZeroNet\plugins\disabled-*\*,\ZeroNet\plugins\Trayicon\*"; Flags: ignoreversion recursesubdirs
-;Source: "bin\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "ZeroBundle\ZeroNet-NotPackedPython.cmd"; DestDir: "{app}"; DestName: "ZeroNet.cmd"; Flags: ignoreversion; Components: not python27
+; Python files
+Source: "ZeroBundle\*"; DestDir: "{app}"; Excludes: "\Python\*,\Python-x64\*,\ZeroNet\plugins\disabled-*\*,\ZeroNet\plugins\Trayicon\*"; Flags: ignoreversion recursesubdirs
+Source: "ZeroBundle\Python\*"; DestDir: "{app}\Python"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: python27
 ; Official Plugins
 Source: "ZeroBundle\ZeroNet\plugins\Trayicon\*"; DestDir: "{app}\ZeroNet\plugins\Trayicon"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: officialplugins\trayicon
 Source: "ZeroBundle\ZeroNet\plugins\disabled-UiPassword\*"; DestDir: "{app}\ZeroNet\plugins\UiPassword"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: officialplugins\uipassword
@@ -129,6 +132,7 @@ begin
 		'Select the data folder of a previous ZeroNet instance that you want moved to the new ZeroNet installation, then click Next. If you do not want to move a data directory, then leave blank.',
 		False, '');
 	DataDirMovePage.Add('');
+	DataDirMovePage.Values[0] := '';
 end;
 
 procedure SetElevationBit(Filename: string);

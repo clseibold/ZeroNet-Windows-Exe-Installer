@@ -69,11 +69,11 @@ Source: "Plugins\P2P-messages\*"; DestDir: "{app}\ZeroNet\plugins\P2P-messages";
 
 [Icons]
 Name: "{group}\Data directory"; Filename: "{app}\ZeroNet\data"; Flags: foldershortcut
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; \
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\ZeroNet.ico"; \
   AfterInstall: SetElevationBit('{group}\{#MyAppName}.lnk')
 Name: "{group}\{cm:ProgramOnTheWeb,{#MyAppName}}"; Filename: "{#MyAppURL}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
-Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; \
+Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; IconFilename: "{app}\ZeroNet.ico"; \
   AfterInstall: SetElevationBit('{commondesktop}\{#MyAppName}.lnk')
 
 [Run]
@@ -89,9 +89,9 @@ Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environmen
 	ValueType: String; ValueName: "ZERONET_BUNDLE_ROOT"; ValueData: "{app}"; Flags: uninsdeletekeyifempty uninsdeletevalue;
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
 	ValueType: String; ValueName: "ZERONET_DATA_DIR"; ValueData: "{app}\ZeroNet\data"; Flags: uninsdeletekeyifempty uninsdeletevalue;
-; Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
-    ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}\bin"; \
-    Check: NeedsAddPath(ExpandConstant('{app}\bin'))
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+    ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; \
+    Check: NeedsAddPath(ExpandConstant('{app}'))
 
 [InstallDelete]
 ; Delete files from old installation, version 1.2 and below

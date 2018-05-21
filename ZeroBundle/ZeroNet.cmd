@@ -1,4 +1,5 @@
 @echo off
+cd %~dp0
 if "%1" == "" (
 	Python\python.exe -m zerobundle.run https://github.com/HelloZeroNet/ZeroNet start.py
 ) else (

@@ -2,7 +2,7 @@
 #define MyAppVersion "1.0"
 #define MyAppPublisher "ZeroNet"
 #define MyAppURL "https://www.zeronet.io/"
-#define MyAppExeName "ZeroNet.exe"
+#define MyAppExeName "ZeroNet.cmd"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -28,9 +28,6 @@ SolidCompression=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
-
-[Dirs]
-Name: "{app}\bin"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
@@ -58,20 +55,20 @@ Name: "thirdpartyplugins\p2pmessages"; Description: "P2P Messages Plugin (imachu
 [Files]
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 ; Base Install
-Source: "ZeroNet-win-dist\ZeroNet.exe"; DestDir: "{app}"; Flags: ignoreversion; \
+Source: "ZeroBundle\ZeroNet.cmd"; DestDir: "{app}"; Flags: ignoreversion; \
   AfterInstall: SetElevationBit('{app}\{#MyAppExeName}')
-Source: "ZeroNet-win-dist\*"; DestDir: "{app}"; Excludes: "\core\plugins\disabled-*\*,\core\plugins\Trayicon\*"; Flags: ignoreversion recursesubdirs
-Source: "bin\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "ZeroBundle\*"; DestDir: "{app}"; Excludes: "\Python-x64\*,\ZeroNet\plugins\disabled-*\*,\ZeroNet\plugins\Trayicon\*"; Flags: ignoreversion recursesubdirs
+;Source: "bin\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; Official Plugins
-Source: "ZeroNet-win-dist\core\plugins\Trayicon\*"; DestDir: "{app}\core\plugins\Trayicon"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: officialplugins\trayicon
-Source: "ZeroNet-win-dist\core\plugins\disabled-UiPassword\*"; DestDir: "{app}\core\plugins\UiPassword"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: officialplugins\uipassword
-Source: "ZeroNet-win-dist\core\plugins\disabled-Multiuser\*"; DestDir: "{app}\core\plugins\Multiuser"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: officialplugins\multiuser
-Source: "ZeroNet-win-dist\core\plugins\disabled-Zeroname-local\*"; DestDir: "{app}\core\plugins\Zeroname-local"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: officialplugins\zeronamelocal
+Source: "ZeroBundle\ZeroNet\plugins\Trayicon\*"; DestDir: "{app}\ZeroNet\plugins\Trayicon"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: officialplugins\trayicon
+Source: "ZeroBundle\ZeroNet\plugins\disabled-UiPassword\*"; DestDir: "{app}\ZeroNet\plugins\UiPassword"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: officialplugins\uipassword
+Source: "ZeroBundle\ZeroNet\plugins\disabled-Multiuser\*"; DestDir: "{app}\ZeroNet\plugins\Multiuser"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: officialplugins\multiuser
+Source: "ZeroBundle\ZeroNet\plugins\disabled-Zeroname-local\*"; DestDir: "{app}\ZeroNet\plugins\Zeroname-local"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: officialplugins\zeronamelocal
 ; Third-Party Plugins
-Source: "Plugins\P2P-messages\*"; DestDir: "{app}\core\plugins\P2P-messages"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: thirdpartyplugins\p2pmessages
+Source: "Plugins\P2P-messages\*"; DestDir: "{app}\ZeroNet\plugins\P2P-messages"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: thirdpartyplugins\p2pmessages
 
 [Icons]
-Name: "{group}\Data directory"; Filename: "{app}\data"; Flags: foldershortcut
+Name: "{group}\Data directory"; Filename: "{app}\ZeroNet\data"; Flags: foldershortcut
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; \
   AfterInstall: SetElevationBit('{group}\{#MyAppName}.lnk')
 Name: "{group}\{cm:ProgramOnTheWeb,{#MyAppName}}"; Filename: "{#MyAppURL}"
@@ -87,20 +84,35 @@ Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags
   ValueType: String; ValueName: "{app}\{#MyAppExeName}"; ValueData: "RUNASADMIN"; \
   Flags: uninsdeletekeyifempty uninsdeletevalue; MinVersion: 0,6.1
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
-	ValueType: String; ValueName: "ZERONET_ROOT"; ValueData: "{app}\core"; Flags: uninsdeletekeyifempty uninsdeletevalue;
+	ValueType: String; ValueName: "ZERONET_ROOT"; ValueData: "{app}\ZeroNet"; Flags: uninsdeletekeyifempty uninsdeletevalue;
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
 	ValueType: String; ValueName: "ZERONET_BUNDLE_ROOT"; ValueData: "{app}"; Flags: uninsdeletekeyifempty uninsdeletevalue;
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
-	ValueType: String; ValueName: "ZERONET_DATA_DIR"; ValueData: "{app}\data"; Flags: uninsdeletekeyifempty uninsdeletevalue;
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
-	ValueType: String; ValueName: "ZERONET_DATA_DIR"; ValueData: "{app}\data"; Flags: uninsdeletekeyifempty uninsdeletevalue;
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+	ValueType: String; ValueName: "ZERONET_DATA_DIR"; ValueData: "{app}\ZeroNet\data"; Flags: uninsdeletekeyifempty uninsdeletevalue;
+; Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
     ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}\bin"; \
     Check: NeedsAddPath(ExpandConstant('{app}\bin'))
 
-[UninstallDelete]
-Type: filesandordirs; Name: "{app}\core"
+[InstallDelete]
+; Delete files from old installation, version 1.2 and below
+Type: files; Name: "{app}\gevent._semaphore.pyd"
+Type: files; Name: "{app}\gevent.libev.corecext.pyd"
+Type: files; Name: "{app}\Microsoft.VC90.CRT.manifest"
+Type: files; Name: "{app}\msvcm90.dll"
+Type: files; Name: "{app}\msvcp90.dll"
+Type: files; Name: "{app}\msvcr90.dll"
+Type: files; Name: "{app}\python27.dll"
+; Notice
+Type: files; Name: "{app}\ZeroNet.exe"
+Type: files; Name: "{app}\ZeroNet.pkg"
+Type: filesandordirs; Name: "{app}\bin"
+Type: filesandordirs; Name: "{app}\log"
 Type: filesandordirs; Name: "{app}\lib"
+Type: filesandordirs; Name: "{app}\core"
+
+[UninstallDelete]
+;Type: filesandordirs; Name: "{app}\"
+;Type: filesandordirs; Name: "{app}\lib"
 	
 [Code]
 procedure SetElevationBit(Filename: string);
@@ -146,7 +158,33 @@ end;
 // Delete ZeroNet Data Directory Procedure
 procedure DeleteDataDirectory();
 begin
-	DelTree(ExpandConstant('{app}\data'), True, True, True);
+	DelTree(ExpandConstant('{app}\ZeroNet\data'), True, True, True);
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+		// Called after installation
+	if CurStep = ssPostInstall then
+	begin
+		if DirExists(ExpandConstant('{app}\data')) then begin
+			Log('Moving data directory to new location');
+			// Move data directory to new location
+			if DirExists(ExpandConstant('{app}\ZeroNet\data')) then
+			begin
+				DelTree(ExpandConstant('{app}\ZeroNet\data'), True, True, True);
+			end;
+			RenameFile(ExpandConstant('{app}\data'), ExpandConstant('{app}\ZeroNet\data'));
+		end;
+		// Move old zeronet.conf file to new location
+		if FileExists(ExpandConstant('{app}\zeronet.conf')) then begin
+			Log('Moving zeronet.conf file to new location');
+			if FileExists(ExpandConstant('{app}\ZeroNet\zeronet.conf')) then
+			begin
+				DeleteFile(ExpandConstant('{app}\ZeroNet\zeronet.conf'));
+			end;
+			RenameFile(ExpandConstant('{app}\zeronet.conf'), ExpandConstant('{app}\ZeroNet\zeronet.conf'));
+		end;
+	end;
 end;
 
 // Called after uninstallation

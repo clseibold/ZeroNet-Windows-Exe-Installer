@@ -23,11 +23,14 @@ DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 OutputBaseFilename=ZeroNetInstaller
-Compression=lzma
+Compression=lzma2
 SolidCompression=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
+
+[Dirs]
+Name: "{app}\ZeroNet\data"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
@@ -112,6 +115,7 @@ Type: filesandordirs; Name: "{app}\core"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\ZeroNet\src"
+Type: filesandordirs; Name: "{app}\Python"
 	
 [Code]
 var
@@ -173,6 +177,20 @@ begin
 	DelTree(ExpandConstant('{app}\ZeroNet\data'), True, True, True);
 end;
 
+// When page changed
+procedure CurPageChanged(CurPageId: Integer);
+begin
+	if CurPageId = wpReady then
+	begin
+		if DataDirMovePage.Values[0] <> '' then
+		begin
+			Wizardform.ReadyMemo.Lines.Add('');
+			Wizardform.ReadyMemo.Lines.Add('Move data directory to new ZeroNet installation');
+			Wizardform.ReadyMemo.Lines.Add('    ' + DataDirMovePage.Values[0]);
+		end;
+	end;
+end;
+
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
 		// Called after installation
@@ -200,6 +218,10 @@ begin
 		if (DataDirMovePage.Values[0] <> '') and DirExists(DataDirMovePage.Values[0]) then
 		begin
 			Log('Moving selected data directory.');
+			if DirExists(ExpandConstant('{app}\ZeroNet\data')) then
+			begin
+				DelTree(ExpandConstant('{app}\ZeroNet\data'), True, True, True);
+			end;
 			RenameFile(DataDirMovePage.Values[0], ExpandConstant('{app}\ZeroNet\data'));
 		end;
 	end;

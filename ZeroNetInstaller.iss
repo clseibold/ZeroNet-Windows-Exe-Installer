@@ -39,18 +39,37 @@ Name: "{app}\bin"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 ;Name: "p2pmessagesplugin"; Description: "P2P Messages"; GroupDescription: "Install Additional Plugins"
 
+[Types]
+Name: "full"; Description: "Full client installation"
+Name: "minimal"; Description: "Minimal client installation"
+Name: "fullserver"; Description: "Full proxy server installation"
+Name: "minimalserver"; Description: "Minimal proxy server installation"
+Name: "custom"; Description: "Custom installation"; Flags: iscustom
+
 [Components]
-Name: "main"; Description: "ZeroNet Core"; Types: full compact custom; Flags: fixed
-Name: "plugins"; Description: "Plugins"; Types: full custom
-Name: "plugins\p2pmessages"; Description: "P2P Messages Plugin (imachug) - Beta"; Types: full
+Name: "main"; Description: "Base install"; Types: full minimal fullserver minimalserver custom; Flags: fixed
+; Official Plugins
+Name: "officialplugins"; Description: "Official Plugins"; Types: full fullserver custom
+Name: "officialplugins\trayicon"; Description: "Tray icon"; Types: full minimal fullserver
+Name: "officialplugins\uipassword"; Description: "UiPassword"; Types: fullserver
+Name: "officialplugins\multiuser"; Description: "Multiuser"; Types: fullserver
+; Third-Party Plugins
+Name: "thirdpartyplugins"; Description: "Third-Party Plugins"; Types: full fullserver custom
+Name: "thirdpartyplugins\p2pmessages"; Description: "P2P Messages Plugin (imachug) - Beta"; Types: full fullserver
 
 [Files]
+; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+; Base Install
 Source: "ZeroNet-win-dist\ZeroNet.exe"; DestDir: "{app}"; Flags: ignoreversion; \
   AfterInstall: SetElevationBit('{app}\{#MyAppExeName}')
-Source: "ZeroNet-win-dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "ZeroNet-win-dist\*"; DestDir: "{app}"; Excludes: "\core\plugins\disabled-*\*,\core\plugins\Trayicon\*"; Flags: ignoreversion recursesubdirs
 Source: "bin\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "Plugins\P2P-messages\*"; DestDir: "{app}\core\plugins\P2P-messages"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: plugins\p2pmessages
-; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+; Official Plugins
+Source: "ZeroNet-win-dist\core\plugins\Trayicon\*"; DestDir: "{app}\core\plugins\Trayicon"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: officialplugins\trayicon
+Source: "ZeroNet-win-dist\core\plugins\disabled-UiPassword\*"; DestDir: "{app}\core\plugins\UiPassword"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: officialplugins\uipassword
+Source: "ZeroNet-win-dist\core\plugins\disabled-Multiuser\*"; DestDir: "{app}\core\plugins\Multiuser"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: officialplugins\multiuser
+; Third-Party Plugins
+Source: "Plugins\P2P-messages\*"; DestDir: "{app}\core\plugins\P2P-messages"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: thirdpartyplugins\p2pmessages
 
 [Icons]
 Name: "{group}\Data directory"; Filename: "{app}\data"; Flags: foldershortcut

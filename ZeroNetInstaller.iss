@@ -61,6 +61,8 @@ Name: "thirdpartyplugins\p2pmessages"; Description: "P2P Messages Plugin (imachu
 
 [Files]
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+; Add this installer itself into the installation directory
+Source: "{srcexe}"; DestDir: "{app}"; Flags: external
 ; Base Install - Pre-packaged python vs. Not Pre-packaged python
 Source: "ZeroBundle\ZeroNet.cmd"; DestDir: "{app}"; Flags: ignoreversion; Components: python27; \
   AfterInstall: SetElevationBit('{app}\{#MyAppExeName}')

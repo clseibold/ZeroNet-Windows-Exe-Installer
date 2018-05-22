@@ -10,29 +10,30 @@ if errorlevel 1 goto UsePython
 
 :UsePy
 if "%1" == "" (
-	py -2 -m zerobundle.run https://github.com/HelloZeroNet/ZeroNet start.py
+	cd ZeroNet
+	py -2 start.py
+	cd ..
 ) else (
-	if not exist ZeroNet (
-		py -2 -m zerobundle.run https://github.com/HelloZeroNet/ZeroNet zeronet.py %*
-	) else (
-		cd ZeroNet
-		py -2 zeronet.py %*
-		cd ..
-	)
+	cd ZeroNet
+	py -2 zeronet.py %*
+	cd ..
 )
+goto end
 
 :UsePython
 if "%1" == "" (
-	python -m zerobundle.run https://github.com/HelloZeroNet/ZeroNet start.py
+	cd ZeroNet
+	python start.py
+	cd ..
 ) else (
-	if not exist ZeroNet (
-		python -m zerobundle.run https://github.com/HelloZeroNet/ZeroNet zeronet.py %*
-	) else (
-		cd ZeroNet
-		python zeronet.py %*
-		cd ..
-	)
+	cd ZeroNet
+	python zeronet.py %*
+	cd ..
 )
+goto end
 
 :NoPython
 echo You must have Python 2 installed and in Path to start ZeroNet.
+
+:end
+pause

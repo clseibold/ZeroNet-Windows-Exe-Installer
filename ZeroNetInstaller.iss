@@ -9,8 +9,8 @@
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{7C632D38-8512-4141-9AAE-C61BB83AE099}
-PrivilegesRequired=admin
 ; Tell Windows Explorer to reload the environment
+PrivilegesRequired=admin
 ChangesEnvironment=yes
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
@@ -25,6 +25,8 @@ AllowNoIcons=yes
 OutputBaseFilename=ZeroNetInstaller
 Compression=lzma2
 SolidCompression=yes
+FlatComponentsList=False
+UninstallDisplayName=ZeroNet
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -45,10 +47,11 @@ Name: "custom"; Description: "Custom installation"; Flags: iscustom
 
 [Components]
 Name: "main"; Description: "Base install"; Types: full minimal fullserver minimalserver custom; Flags: fixed
-Name: "python27"; Description: "Pre-packaged Python 2.7 32-bit"; Types: full minimal fullserver minimalserver custom
+Name: "python27"; Description: "Pre-packaged Python 2.7 32-bit (Recommended)"; Types: full minimal fullserver minimalserver custom; Flags: checkablealone
+Name: "python27\trayicon"; Description: "Tray icon"; Types: full minimal fullserver; Flags: dontinheritcheck
 ; Official Plugins
 Name: "officialplugins"; Description: "Official Plugins"; Types: full fullserver custom
-Name: "officialplugins\trayicon"; Description: "Tray icon"; Types: full minimal fullserver
+;Name: "officialplugins\trayicon"; Description: "Tray icon"; Types: full minimal fullserver
 Name: "officialplugins\uipassword"; Description: "UiPassword"; Types: fullserver
 Name: "officialplugins\multiuser"; Description: "Multiuser"; Types: fullserver
 Name: "officialplugins\zeronamelocal"; Description: "ZeroName Local"
@@ -62,11 +65,11 @@ Name: "thirdpartyplugins\p2pmessages"; Description: "P2P Messages Plugin (imachu
 Source: "ZeroBundle\ZeroNet.cmd"; DestDir: "{app}"; Flags: ignoreversion; Components: python27; \
   AfterInstall: SetElevationBit('{app}\{#MyAppExeName}')
 Source: "ZeroBundle\ZeroNet-NotPackedPython.cmd"; DestDir: "{app}"; DestName: "ZeroNet.cmd"; Flags: ignoreversion; Components: not python27
-; Python files
+; Python files (and modules for when not using pre-packaged python)
 Source: "ZeroBundle\*"; DestDir: "{app}"; Excludes: "\Python\*,\Python-x64\*,\ZeroNet\plugins\disabled-*\*,\ZeroNet\plugins\Trayicon\*"; Flags: ignoreversion recursesubdirs
 Source: "ZeroBundle\Python\*"; DestDir: "{app}\Python"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: python27
 ; Official Plugins
-Source: "ZeroBundle\ZeroNet\plugins\Trayicon\*"; DestDir: "{app}\ZeroNet\plugins\Trayicon"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: officialplugins\trayicon
+Source: "ZeroBundle\ZeroNet\plugins\Trayicon\*"; DestDir: "{app}\ZeroNet\plugins\Trayicon"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: python27\trayicon
 Source: "ZeroBundle\ZeroNet\plugins\disabled-UiPassword\*"; DestDir: "{app}\ZeroNet\plugins\UiPassword"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: officialplugins\uipassword
 Source: "ZeroBundle\ZeroNet\plugins\disabled-Multiuser\*"; DestDir: "{app}\ZeroNet\plugins\Multiuser"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: officialplugins\multiuser
 Source: "ZeroBundle\ZeroNet\plugins\disabled-Zeroname-local\*"; DestDir: "{app}\ZeroNet\plugins\Zeroname-local"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: officialplugins\zeronamelocal
@@ -129,10 +132,9 @@ procedure InitializeWizard;
 begin
 	DataDirMovePage := CreateInputDirPage(wpSelectDir,
 		'Move Data of Previous ZeroNet Instance', 'Select a Data Directory to move to new ZeroNet installation',
-		'Select the data folder of a previous ZeroNet instance that you want moved to the new ZeroNet installation, then click Next. If you do not want to move a data directory, then leave blank.',
+		'Select the data folder of a previous ZeroNet instance that you want moved to the new ZeroNet installation, then click Next. If you do not want to move a data directory, then leave the default value.',
 		False, '');
 	DataDirMovePage.Add('');
-	DataDirMovePage.Values[0] := '';
 end;
 
 procedure SetElevationBit(Filename: string);
@@ -186,12 +188,17 @@ procedure CurPageChanged(CurPageId: Integer);
 begin
 	if CurPageId = wpReady then
 	begin
-		if DataDirMovePage.Values[0] <> '' then
+		if (DataDirMovePage.Values[0] <> '') and (DataDirMovePage.Values[0] <> ExpandConstant('{app}\ZeroNet\data')) then
 		begin
 			Wizardform.ReadyMemo.Lines.Add('');
 			Wizardform.ReadyMemo.Lines.Add('Move data directory to new ZeroNet installation');
 			Wizardform.ReadyMemo.Lines.Add('    ' + DataDirMovePage.Values[0]);
 		end;
+	end;
+	// If gone to DataMoveDir Page, set default value if value not already set
+	if (CurPageId = DataDirMovePage.ID) and (DataDirMovePage.Values[0] = '') then
+	begin
+		DataDirMovePage.Values[0] := ExpandConstant('{app}\ZeroNet\data');
 	end;
 end;
 
@@ -219,7 +226,7 @@ begin
 			RenameFile(ExpandConstant('{app}\zeronet.conf'), ExpandConstant('{app}\ZeroNet\zeronet.conf'));
 		end;
 		// Move the select data directory to the new location
-		if (DataDirMovePage.Values[0] <> '') and DirExists(DataDirMovePage.Values[0]) then
+		if (DataDirMovePage.Values[0] <> '') and (DataDirMovePage.Values[0] <> ExpandConstant('{app}\ZeroNet\data')) and DirExists(DataDirMovePage.Values[0]) then
 		begin
 			Log('Moving selected data directory.');
 			if DirExists(ExpandConstant('{app}\ZeroNet\data')) then

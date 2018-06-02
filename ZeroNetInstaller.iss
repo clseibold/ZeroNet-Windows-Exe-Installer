@@ -27,16 +27,17 @@ Compression=lzma2
 SolidCompression=yes
 FlatComponentsList=False
 UninstallDisplayName=ZeroNet
+; Allow modify button in Add/Remove Programs, will run this installer, which was copies to the installation directory
+AppModifyPath="{app}\Setup.exe" /modify=1
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Dirs]
-Name: "{app}\ZeroNet\data"
+Name: "{app}\ZeroNet\data";
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-;Name: "p2pmessagesplugin"; Description: "P2P Messages"; GroupDescription: "Install Additional Plugins"
 
 [Types]
 Name: "full"; Description: "Full client installation"
@@ -47,22 +48,21 @@ Name: "custom"; Description: "Custom installation"; Flags: iscustom
 
 [Components]
 Name: "main"; Description: "Base install"; Types: full minimal fullserver minimalserver custom; Flags: fixed
-Name: "python27"; Description: "Pre-packaged Python 2.7 32-bit (Recommended)"; Types: full minimal fullserver minimalserver custom; Flags: checkablealone
+Name: "python27"; Description: "Pre-packaged Python 2.7 32-bit (Recommended)"; Types: full minimal fullserver minimalserver custom; Flags: checkablealone fixed
 Name: "python27\trayicon"; Description: "Tray icon"; Types: full minimal fullserver; Flags: dontinheritcheck
 ; Official Plugins
 Name: "officialplugins"; Description: "Official Plugins"; Types: full fullserver custom
-;Name: "officialplugins\trayicon"; Description: "Tray icon"; Types: full minimal fullserver
 Name: "officialplugins\uipassword"; Description: "UiPassword"; Types: fullserver
 Name: "officialplugins\multiuser"; Description: "Multiuser"; Types: fullserver
 Name: "officialplugins\zeronamelocal"; Description: "ZeroName Local"
 ; Third-Party Plugins
 Name: "thirdpartyplugins"; Description: "Third-Party Plugins"; Types: full fullserver custom
-Name: "thirdpartyplugins\p2pmessages"; Description: "P2P Messages Plugin (imachug) - Beta"; Types: full fullserver
+Name: "thirdpartyplugins\peermessage"; Description: "PeerMessage Plugin (imachug) - Beta"; Types: full fullserver
 
 [Files]
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 ; Add this installer itself into the installation directory
-Source: "{srcexe}"; DestDir: "{app}"; Flags: external
+Source: "{srcexe}"; DestDir: "{app}"; DestName: "Setup.exe"; Flags: external
 ; Base Install - Pre-packaged python vs. Not Pre-packaged python
 Source: "ZeroBundle\ZeroNet.cmd"; DestDir: "{app}"; Flags: ignoreversion; Components: python27; \
   AfterInstall: SetElevationBit('{app}\{#MyAppExeName}')
@@ -76,7 +76,7 @@ Source: "ZeroBundle\ZeroNet\plugins\disabled-UiPassword\*"; DestDir: "{app}\Zero
 Source: "ZeroBundle\ZeroNet\plugins\disabled-Multiuser\*"; DestDir: "{app}\ZeroNet\plugins\Multiuser"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: officialplugins\multiuser
 Source: "ZeroBundle\ZeroNet\plugins\disabled-Zeroname-local\*"; DestDir: "{app}\ZeroNet\plugins\Zeroname-local"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: officialplugins\zeronamelocal
 ; Third-Party Plugins
-Source: "Plugins\P2P-messages\*"; DestDir: "{app}\ZeroNet\plugins\P2P-messages"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: thirdpartyplugins\p2pmessages
+Source: "Plugins\Plugin-PeerMessage\*"; DestDir: "{app}\ZeroNet\plugins\PeerMessage"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: thirdpartyplugins\peermessage
 
 [Icons]
 Name: "{group}\Data directory"; Filename: "{app}\ZeroNet\data"; Flags: foldershortcut

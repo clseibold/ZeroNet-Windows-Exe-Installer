@@ -121,7 +121,7 @@ Type: filesandordirs; Name: "{app}\log"
 Type: filesandordirs; Name: "{app}\lib"
 Type: filesandordirs; Name: "{app}\core"
 
-Type: filesandordirs; Name: "{app}\plugins\P2P-messages"
+Type: filesandordirs; Name: "{app}\ZeroNet\plugins\P2P-messages"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\ZeroNet\src"

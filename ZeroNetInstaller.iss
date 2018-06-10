@@ -52,12 +52,13 @@ Name: "python27"; Description: "Pre-packaged Python 2.7 32-bit (Recommended)"; T
 Name: "python27\trayicon"; Description: "Tray icon"; Types: full minimal fullserver; Flags: dontinheritcheck
 ; Official Plugins
 Name: "officialplugins"; Description: "Official Plugins"; Types: full fullserver custom
-Name: "officialplugins\uipassword"; Description: "UiPassword"; Types: fullserver
-Name: "officialplugins\multiuser"; Description: "Multiuser"; Types: fullserver
+Name: "officialplugins\uipassword"; Description: "UiPassword (typically for proxies)"; Types: fullserver
+Name: "officialplugins\multiuser"; Description: "Multiuser (typically for proxies)"; Types: fullserver
 Name: "officialplugins\zeronamelocal"; Description: "ZeroName Local"
 ; Third-Party Plugins
 Name: "thirdpartyplugins"; Description: "Third-Party Plugins"; Types: full fullserver custom
 Name: "thirdpartyplugins\peermessage"; Description: "PeerMessage Plugin (imachug) - Beta"; Types: full fullserver
+Name: "thirdpartyplugins\backgroundprocessing"; Description: "BackgroundProcessing Plugin (imachug) - Beta"; Types: full fullserver
 
 [Files]
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
@@ -77,6 +78,7 @@ Source: "ZeroBundle\ZeroNet\plugins\disabled-Multiuser\*"; DestDir: "{app}\ZeroN
 Source: "ZeroBundle\ZeroNet\plugins\disabled-Zeroname-local\*"; DestDir: "{app}\ZeroNet\plugins\Zeroname-local"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: officialplugins\zeronamelocal
 ; Third-Party Plugins
 Source: "Plugins\Plugin-PeerMessage\*"; DestDir: "{app}\ZeroNet\plugins\PeerMessage"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: thirdpartyplugins\peermessage
+Source: "Plugins\Plugin-BackgroundProcessing\*"; DestDir: "{app}\ZeroNet\plugins\BackgroundProcessing"; Flags: ignoreversion recursesubdirs createallsubdirs; Components: thirdpartyplugins\backgroundprocessing
 
 [Icons]
 Name: "{group}\Data directory"; Filename: "{app}\ZeroNet\data"; Flags: foldershortcut

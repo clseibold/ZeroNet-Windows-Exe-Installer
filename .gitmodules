@@ -1,0 +1,6 @@
+[submodule "Plugins/Plugin-BackgroundProcessing"]
+	path = Plugins/Plugin-BackgroundProcessing
+	url = https://github.com/HelloZeroNet/Plugin-BackgroundProcessing.git
+[submodule "Plugins/Plugin-PeerMessage"]
+	path = Plugins/Plugin-PeerMessage
+	url = https://github.com/HelloZeroNet/Plugin-PeerMessage.git

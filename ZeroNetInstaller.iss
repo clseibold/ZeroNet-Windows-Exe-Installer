@@ -49,7 +49,7 @@ Name: "custom"; Description: "Custom installation"; Flags: iscustom
 [Components]
 Name: "main"; Description: "Base install"; Types: full minimal fullserver minimalserver custom; Flags: fixed
 Name: "python27"; Description: "Pre-packaged Python 2.7 32-bit (Recommended)"; Types: full minimal fullserver minimalserver custom; Flags: checkablealone fixed
-Name: "python27\trayicon"; Description: "Tray icon"; Types: full minimal fullserver; Flags: dontinheritcheck
+Name: "python27\trayicon"; Description: "Tray icon (Disabled - problematic)"; Flags: dontinheritcheck fixed
 ; Official Plugins
 Name: "officialplugins"; Description: "Official Plugins"; Types: full fullserver custom
 Name: "officialplugins\uipassword"; Description: "UiPassword (typically for proxies)"; Types: fullserver

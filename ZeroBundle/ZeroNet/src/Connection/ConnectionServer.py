@@ -59,11 +59,12 @@ class ConnectionServer(object):
         if request_handler:
             self.handleRequest = request_handler
 
-    def start(self):
+    def start(self, check_connections=True):
         self.running = True
-        self.thread_checker = gevent.spawn(self.checkConnections)
+        if check_connections:
+            self.thread_checker = gevent.spawn(self.checkConnections)
         CryptConnection.manager.loadCerts()
-        if config.tor != "disabled":
+        if config.tor != "disable":
             self.tor_manager.start()
         if not self.port:
             self.log.info("No port found, not binding")
@@ -88,6 +89,7 @@ class ConnectionServer(object):
             self.log.info("StreamServer listen error: %s" % err)
 
     def stop(self):
+        self.log.debug("Stopping")
         self.running = False
         if self.stream_server:
             self.stream_server.stop()
@@ -115,7 +117,7 @@ class ConnectionServer(object):
     def handleMessage(self, *args, **kwargs):
         pass
 
-    def getConnection(self, ip=None, port=None, peer_id=None, create=True, site=None):
+    def getConnection(self, ip=None, port=None, peer_id=None, create=True, site=None, is_tracker_connection=False):
         if (ip.endswith(".onion") or self.port_opened == False) and self.tor_manager.start_onions and site:  # Site-unique connection for Tor
             if ip.endswith(".onion"):
                 site_onion = self.tor_manager.getOnion(site.address)
@@ -159,9 +161,9 @@ class ConnectionServer(object):
 
             try:
                 if (ip.endswith(".onion") or self.port_opened == False) and self.tor_manager.start_onions and site:  # Lock connection to site
-                    connection = Connection(self, ip, port, target_onion=site_onion)
+                    connection = Connection(self, ip, port, target_onion=site_onion, is_tracker_connection=is_tracker_connection)
                 else:
-                    connection = Connection(self, ip, port)
+                    connection = Connection(self, ip, port, is_tracker_connection=is_tracker_connection)
                 self.ips[key] = connection
                 self.connections.append(connection)
                 succ = connection.connect()
@@ -205,7 +207,7 @@ class ConnectionServer(object):
             last_message_time = 0
             s = time.time()
             for connection in self.connections[:]:  # Make a copy
-                if connection.ip.endswith(".onion"):
+                if connection.ip.endswith(".onion") or config.tor == "always":
                     timeout_multipler = 2
                 else:
                     timeout_multipler = 1

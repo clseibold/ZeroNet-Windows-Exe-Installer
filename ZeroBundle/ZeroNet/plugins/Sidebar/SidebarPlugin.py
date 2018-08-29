@@ -115,9 +115,19 @@ class UiWebsocketPlugin(object):
         else:
             local_html = ""
 
+        peer_ips = [peer.key for peer in site.getConnectablePeers(20, allow_private=False)]
+        peer_ips.sort(key=lambda peer_ip: ".onion:" in peer_ip)
+        copy_link = "http://127.0.0.1:43110/%s/?zeronet_peers=%s" % (
+            site.content_manager.contents["content.json"].get("domain", site.address),
+            ",".join(peer_ips)
+        )
+
         body.append(_(u"""
             <li>
-             <label>{_[Peers]}</label>
+             <label>
+              {_[Peers]}
+              <small><a href='{copy_link}' id='link-copypeers' class='link-right'>{_[Copy to clipboard]}</a></small>
+             </label>
              <ul class='graph'>
               <li style='width: 100%' class='total back-black' title="{_[Total peers]}"></li>
               <li style='width: {percent_connectable:.0%}' class='connectable back-blue' title='{_[Connectable peers]}'></li>
@@ -165,7 +175,7 @@ class UiWebsocketPlugin(object):
              <label>
               {_[Files]}
               <small><a href='#Site+directory' id='link-directory' class='link-right'>{_[Open site directory]}</a>
-              <a href='/ZeroNet-Internal/Zip?address={site.address}' id='link-zip' class='link-right'>{_[Download as .zip]}</a></small>
+              <a href='/ZeroNet-Internal/Zip?address={site.address}' id='link-zip' class='link-right' download='site.zip'>{_[Save as .zip]}</a></small>
              </label>
              <ul class='graph graph-stacked'>
         """))
@@ -409,13 +419,31 @@ class UiWebsocketPlugin(object):
             </li>
         """))
 
+        donate_key = site.content_manager.contents.get("content.json", {}).get("donate", True)
         site_address = self.site.address
         body.append(_(u"""
             <li>
              <label>{_[Site address]}</label><br>
              <div class='flex'>
               <span class='input text disabled'>{site_address}</span>
+        """))
+        if donate_key == False or donate_key == "":
+            pass
+        elif (type(donate_key) == str or type(donate_key) == unicode) and len(donate_key) > 0:
+            escaped_donate_key = cgi.escape(donate_key, True)
+            body.append(_(u"""
+             </div>
+            </li>
+            <li>
+             <label>{_[Donate]}</label><br>
+             <div class='flex'>
+             {escaped_donate_key}
+            """))
+        else:
+            body.append(_(u"""
               <a href='bitcoin:{site_address}' class='button' id='button-donate'>{_[Donate]}</a>
+            """))
+        body.append(_(u"""
              </div>
             </li>
         """))

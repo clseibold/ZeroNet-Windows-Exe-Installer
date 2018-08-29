@@ -36,6 +36,8 @@ class TorManager(object):
         self.start_onions = None
         self.conn = None
         self.lock = RLock()
+        self.starting = True
+        self.event_started = gevent.event.AsyncResult()
 
         if config.tor == "disable":
             self.enabled = False
@@ -57,12 +59,17 @@ class TorManager(object):
         self.proxy_port = int(self.proxy_port)
 
     def start(self):
+        self.log.debug("Starting (Tor: %s)" % config.tor)
+        self.starting = True
         try:
             if not self.connect():
                 raise Exception("No connection")
             self.log.debug("Tor proxy port %s check ok" % config.tor_proxy)
         except Exception, err:
-            self.log.info(u"Starting self-bundled Tor, due to Tor proxy port %s check error: %s" % (config.tor_proxy, err))
+            if sys.platform.startswith("win"):
+                self.log.info(u"Starting self-bundled Tor, due to Tor proxy port %s check error: %s" % (config.tor_proxy, err))
+            else:
+                self.log.info(u"Disabling Tor, because error while accessing Tor proxy at port %s: %s" % (config.tor_proxy, err))
             self.enabled = False
             # Change to self-bundled Tor ports
             from lib.PySocks import socks
@@ -106,6 +113,8 @@ class TorManager(object):
             except Exception, err:
                 self.log.error(u"Error starting Tor client: %s" % Debug.formatException(str(err).decode("utf8", "ignore")))
                 self.enabled = False
+        self.starting = False
+        self.event_started.set(False)
         return False
 
     def isSubprocessRunning(self):
@@ -183,7 +192,7 @@ class TorManager(object):
                 # Auth cookie file
                 res_protocol = self.send("PROTOCOLINFO", conn)
                 cookie_match = re.search('COOKIEFILE="(.*?)"', res_protocol)
-                
+
                 if config.tor_password:
                     res_auth = self.send('AUTHENTICATE "%s"' % config.tor_password, conn)
                 elif cookie_match:
@@ -201,11 +210,13 @@ class TorManager(object):
                 assert float(version.replace(".", "0", 2)) >= 207.5, "Tor version >=0.2.7.5 required, found: %s" % version
 
                 self.setStatus(u"Connected (%s)" % res_auth)
+                self.event_started.set(True)
+                self.connecting = False
                 self.conn = conn
         except Exception, err:
             self.conn = None
             self.setStatus(u"Error (%s)" % str(err).decode("utf8", "ignore"))
-            self.log.warning(u"Tor controller connect error: %s" % Debug.formatException(str(err).decode("utf8", "ignore")))
+            self.log.error(u"Tor controller connect error: %s" % Debug.formatException(str(err).decode("utf8", "ignore")))
             self.enabled = False
         return self.conn
 
@@ -289,7 +300,8 @@ class TorManager(object):
                 time.sleep(1)
                 self.connect()
                 back = None
-        self.log.debug("< %s" % back.strip())
+        if back:
+            self.log.debug("< %s" % back.strip())
         return back
 
     def getPrivatekey(self, address):
@@ -319,6 +331,9 @@ class TorManager(object):
         if not self.enabled:
             return False
         self.log.debug("Creating new Tor socket to %s:%s" % (onion, port))
+        if self.starting:
+            self.log.debug("Waiting for startup...")
+            self.event_started.get()
         if config.tor == "always":  # Every socket is proxied by default, in this mode
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         else:

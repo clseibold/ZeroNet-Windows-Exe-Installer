@@ -12,10 +12,15 @@ class SiteAnnouncerPlugin(object):
     def announce(self, force=False, *args, **kwargs):
         local_announcer = self.site.connection_server.local_announcer
 
+        thread = None
         if local_announcer and (force or time.time() - local_announcer.last_discover > 5 * 60):
-            local_announcer.discover(force=force)
+            thread = gevent.spawn(local_announcer.discover, force=force)
+        back = super(SiteAnnouncerPlugin, self).announce(force=force, *args, **kwargs)
 
-        return super(SiteAnnouncerPlugin, self).announce(force=force, *args, **kwargs)
+        if thread:
+            thread.join()
+
+        return back
 
 
 class LocalAnnouncer(BroadcastServer.BroadcastServer):
@@ -52,7 +57,8 @@ class LocalAnnouncer(BroadcastServer.BroadcastServer):
         }
 
         if sender["peer_id"] not in self.known_peers:
-            self.log.debug("Got discover request from unknown peer %s, time to refresh known peers" % sender["ip"])
+            self.known_peers[sender["peer_id"]] = {"added": time.time(), "sites_changed": 0, "updated": 0, "found": time.time()}
+            self.log.debug("Got discover request from unknown peer %s (%s), time to refresh known peers" % (sender["ip"], sender["peer_id"]))
             gevent.spawn_later(1.0, self.discover)  # Let the response arrive first to the requester
 
         return back
